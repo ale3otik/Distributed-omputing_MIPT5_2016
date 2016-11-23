@@ -8,7 +8,7 @@
 
 const double eps = 0.001;
 const double abs_error_max = 0.00314159265358;
-const int num_of_sections = 1e7;
+const int num_of_sections = 1e8;
 const double PI = 3.14159265358;
 
 double f(double x) {

@@ -1,0 +1,22 @@
+/Users/alex/Desktop/5sem/AKOS2/tasks/t1_monte_carlo.cpp:78:23: error: use of undeclared identifier 'CLOCK_REALTIME'
+        clock_gettime(CLOCK_REALTIME,&begin);
+                      ^
+/Users/alex/Desktop/5sem/AKOS2/tasks/t1_monte_carlo.cpp:94:33: error: expected expression
+        fprintf(stderr, "%s\n", );
+                                ^
+/Users/alex/Desktop/5sem/AKOS2/tasks/t1_monte_carlo.cpp:95:23: error: use of undeclared identifier 'CLOCK_REALTIME'
+        clock_gettime(CLOCK_REALTIME,&end);
+                      ^
+/Users/alex/Desktop/5sem/AKOS2/tasks/t1_monte_carlo.cpp:96:22: error: member reference base type 'long long' is not a structure or union
+        elapsed = end.tv_sec - begin.tv_sec;
+                  ~~~^~~~~~~
+/Users/alex/Desktop/5sem/AKOS2/tasks/t1_monte_carlo.cpp:96:37: error: member reference base type 'long long' is not a structure or union
+        elapsed = end.tv_sec - begin.tv_sec;
+                               ~~~~~^~~~~~~
+/Users/alex/Desktop/5sem/AKOS2/tasks/t1_monte_carlo.cpp:97:24: error: member reference base type 'long long' is not a structure or union
+        elapsed += (end.tv_nsec - begin.tv_sec)/1e9;
+                    ~~~^~~~~~~~
+/Users/alex/Desktop/5sem/AKOS2/tasks/t1_monte_carlo.cpp:97:40: error: member reference base type 'long long' is not a structure or union
+        elapsed += (end.tv_nsec - begin.tv_sec)/1e9;
+                                  ~~~~~^~~~~~~
+7 errors generated.
