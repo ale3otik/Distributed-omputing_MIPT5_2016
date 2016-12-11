@@ -40,7 +40,7 @@ public class WordCount extends Configured implements Tool{
         public void map(LongWritable offset, Text line, Context context) throws IOException, InterruptedException {
             String [] splittedWords = line.toString().split("\\s+");
             // не реплика
-            String characterName = splittedWords[0].replaceAll("^[^a-zA-Zа-яА-Я0-9\\s]+|[^a-zA-Zа-яА-Я0-9\\s]+$", "");
+            String characterName = splittedWords[0].replaceAll("^[^a-z,^A-Z,^а-я,^А-Я,^0-9]$", "");
             if(characterName.length() == 0 || characterName.equals("ПРИМЕЧАНИЯ")) {
                 return;
             }
@@ -48,7 +48,7 @@ public class WordCount extends Configured implements Tool{
             name.set(characterName);
             for(int i = 1; i < splittedWords.length; ++i){
                 String element = splittedWords[i];
-                element = element.replaceAll("^[^a-zA-Zа-яА-Я0-9\\s]+|[^a-zA-Zа-яА-Я0-9\\s]+$", "");
+                element = element.replaceAll("^[^a-z,^A-Z,^а-я,^А-Я,^0-9]$", "");
                 if(element.length() == 0) {
                     continue;
                 }
