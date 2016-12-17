@@ -1,0 +1,8 @@
+Chrome/5.0	male	16
+Chrome/5.0	female	12
+Firefox/5.0	male	17
+Firefox/5.0	female	12
+Opera/5.0	male	15
+Opera/5.0	female	9
+Safari/5.0	male	22
+Safari/5.0	female	14
