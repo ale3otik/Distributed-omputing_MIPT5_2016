@@ -1,1 +1,1 @@
-sed 's/http/ftp/g'
+sed 's/http:\/\//ftp:\/\//g'
