@@ -1,5 +1,5 @@
 # Distributed-omputing_MIPT5_2016
-- Posix treads
+- Posix threads
 - Open MPI
 - OpenMP
 - Hadoop
