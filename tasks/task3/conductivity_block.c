@@ -235,8 +235,7 @@ int main(int argc , char ** argv) {
 	printf("\n");	
 */
 	printf("%lf, ", end - begin); 
-	for(int i = 0; i < len_x; ++i)
-       		 free(result[i]);
+	for(int i = 0; i < len_x; ++i)  free(result[i]);
 	free(result);
     } else {
         send_result();

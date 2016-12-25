@@ -18,13 +18,9 @@ const int lambda = 401;
 const int RIGHT_BOUND_ID_RECV = 1111;
 const int LEFT_BOUND_ID_RECV = 2222;
 /* 
-*
 * TIME = 50 * (60 / dt) = 3000 / dt
 * assume dt = 1e-6 => TIME = 3 * 1e9
 * dt should be small to sequence be convergence 
-* We would use that u[i][j] = u[i][j + 1] for all j (because of equation or just symmetry).
-* Therefore find out u[i][j] = v[i][j] from equations.
-*
 */
 
 const double dt = 1e-3;
@@ -61,19 +57,9 @@ double crd(int i) {
 
 double get_u(int i , int j, double ** vals) {
 	if(i < 0){
-	/*
- 		if(lbound[j] > 1e9-2.0 || lbound[j] < 0.001) {
-			//printf("j = %d || l:%lf\n",j,lbound[j]);
-		}
-	*/
 		return lbound[j];
 	}
 	if(i > my_task_len_x - 1) {
-	/*
-		if(rbound[j] > 1e9-2.0 || rbound[j] < 0.001) {
-			//printf("j = %d || r %lf\n",j,rbound[j]);
-		}
-	*/
 		return rbound[j];
 	}
 
@@ -99,14 +85,6 @@ double calc_u_ij(int i, int j){
 	double v1 = get_v(i,j+1);
 	double v2 = get_v(i,j-1);
 	double res = vij + recalc_coef * (v1 + v2 - 2.0 * vij);
-	/*if(res <= 0) {	
-		printf("res = %d\n", res);
-		printf("i = %d; j = %d \n",i,j);
-		printf("vij = %f\n",(float)vij);
-		printf("vi(j+1) = %f\n",(float)v1);
-		printf("vi(j-1) = %f\n",(float)v2);
-		printf("**************\n");
-	}*/
 	return res; 
 	
 }
@@ -128,13 +106,6 @@ void recv_bounds() {
 	for(int i = 0; i < my_task_len_y;++i)
        		rbound[i] = Ur;
     } else {
-	/*
-	// start test
-	for(int i = 0; i < my_task_len_y; ++i) {
-		rbound[i] = 1e9;
-	}
-	// end test
-	*/
         MPI_Irecv(rbound,my_task_len_y, MPI_DOUBLE, rank + 1, RIGHT_BOUND_ID_RECV, MPI_COMM_WORLD, &request_right);
     }
     
@@ -143,12 +114,6 @@ void recv_bounds() {
 	for(int i = 0; i < my_task_len_y;++i)
        		lbound[i] = Ul;
     } else {
-	/*//start test
-	for(int i = 0; i < my_task_len_y;++i) {
-		lbound[i] = 1e9;
-	}
-	//end test
-	*/
         MPI_Irecv(lbound, my_task_len_y, MPI_DOUBLE, rank - 1, LEFT_BOUND_ID_RECV, MPI_COMM_WORLD, &request_left);
     }
 }
@@ -157,7 +122,6 @@ void calc() {
     send_bounds();
     recv_bounds();
 
-	//printf("rk %d \n", rank);
 	for(int i = 1; i < my_task_len_x-1; ++i) {
 		for(int j = 0; j < my_task_len_y;++j) {
 
@@ -180,9 +144,8 @@ void calc() {
     }
 
     if(rank != 0) {
-	MPI_Wait(&request_send_0,&Status);
+    	MPI_Wait(&request_send_0,&Status);
         MPI_Wait(&request_left, &Status);
-	//printf("lll : %lf\n",lbound[0]);
     }
 	
     	for(int j = 0; j < my_task_len_y;++j){
@@ -194,7 +157,6 @@ void calc() {
 	double ** tmp = u_last;
 	u_last = u_next;
 	u_next = tmp;
-    //std::swap(u_last,u_next);
 }
 
 void send_result() {
@@ -245,8 +207,6 @@ int main(int argc , char ** argv) {
         my_task_len_x += len_x % proc_qnt;
     }
 
-//	printf("my rank = %d, my_task_len_x = %d \n", rank,my_task_len_x);
-   
 	lbound = (double*) malloc(sizeof(double) * my_task_len_y);
 	rbound = (double*)malloc(sizeof(double) * my_task_len_y);
 	u_next = (double **) malloc(my_task_len_x * sizeof(double*));
@@ -291,11 +251,9 @@ int main(int argc , char ** argv) {
         }
 	printf("\n");	
 */
-//	printf("\n time elapsed : %lf" , end - begin);
 	printf("%lf, ", end - begin); 
-	for(int i = 0; i < len_x; ++i)
-       		 free(result[i]);
-	free(result);
+	for(int i = 0; i < len_x; ++i) free(result[i]);
+    free(result);
     } else {
         send_result();
     }
