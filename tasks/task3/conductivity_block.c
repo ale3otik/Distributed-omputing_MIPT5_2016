@@ -21,9 +21,9 @@ const int LEFT_BOUND_ID_RECV = 2222;
 *
 * TIME = 50 * (60 / dt) = 3000 / dt
 * assume dt = 1e-6 => TIME = 3 * 1e9
-* dt should be small to sequence be convergence 
-* We would use that u[i][j] = u[i][j + 1] for all j (because of equation or just symmetry).
-* Therefore find out u[i][j] = v[i][j] from equations.
+*
+* dt should be small to sequence be convergence
+* dt < 1e-2 suitable values
 *
 */
 
@@ -59,19 +59,9 @@ double crd(int i) {
 
 double get_u(int i , int j, double ** vals) {
 	if(i < 0){
-	/*
- 		if(lbound[j] > 1e9-2.0 || lbound[j] < 0.001) {
-			//printf("j = %d || l:%lf\n",j,lbound[j]);
-		}
-	*/
 		return lbound[j];
 	}
 	if(i > my_task_len_x - 1) {
-	/*
-		if(rbound[j] > 1e9-2.0 || rbound[j] < 0.001) {
-			//printf("j = %d || r %lf\n",j,rbound[j]);
-		}
-	*/
 		return rbound[j];
 	}
 
@@ -85,7 +75,6 @@ double get_v(int i , int j) {
 }
 
 double calc_v_ij(int i, int j) {
-//	printf("<%d>\n",i);
 	double uij = get_u(i,j,u_last);
 	double u1 = get_u(i+1,j,u_last);
 	double u2 = get_u(i-1,j,u_last);
@@ -112,30 +101,14 @@ void send_bounds() {
 
 void recv_bounds() {
 	if(rank == proc_qnt - 1) {
-		for(int i = 0; i < my_task_len_y;++i)
-       			rbound[i] = Ur;
+		for(int i = 0; i < my_task_len_y;++i) rbound[i] = Ur;
  	} else {
-	/*
-	// start test
-	for(int i = 0; i < my_task_len_y; ++i) {
-		rbound[i] = 1e9;
-	}
-	// end test
-	*/
         MPI_Recv(rbound,my_task_len_y, MPI_DOUBLE, rank + 1, RIGHT_BOUND_ID_RECV, MPI_COMM_WORLD, &Status);
     }
     
     if(rank == 0) {
-	
-	for(int i = 0; i < my_task_len_y;++i)
-       		lbound[i] = Ul;
+    	for(int i = 0; i < my_task_len_y;++i) lbound[i] = Ul;
     } else {
-	/*//start test
-	for(int i = 0; i < my_task_len_y;++i) {
-		lbound[i] = 1e9;
-	}
-	//end test
-	*/
         MPI_Recv(lbound, my_task_len_y, MPI_DOUBLE, rank - 1, LEFT_BOUND_ID_RECV, MPI_COMM_WORLD, &Status);
     }
 }
@@ -145,6 +118,10 @@ void process_bounds(int step) {
 }
 
 void calc() {
+    /* * 
+     * to avoid deadlock and linear complexity let threads having the even and odd
+     * ranks make receive and send operations in different order.
+     * */
     process_bounds(rank%2);
     process_bounds((rank+1)%2);
 
@@ -184,10 +161,10 @@ double ** recv_result() {
 	}
     for(int i = 1; i < proc_qnt; ++i) {
         int len = my_task_len_x + (i == proc_qnt - 1 ? len_x % proc_qnt : 0);
-	for(int m = 0; m < len; ++m) {
-        	MPI_Recv(result[k], my_task_len_y, MPI_DOUBLE, i, 1, MPI_COMM_WORLD, &Status);
-   		++k;	
-	}
+    	for(int m = 0; m < len; ++m) {
+          	MPI_Recv(result[k], my_task_len_y, MPI_DOUBLE, i, 1, MPI_COMM_WORLD, &Status);
+    		++k;	
+    	}
     }
     return result;
 }
@@ -204,17 +181,16 @@ int main(int argc , char ** argv) {
 	}
     
     if(rank >= proc_qnt) {
-	MPI_Finalize();
-	return 0;
+    	MPI_Finalize();
+    	return 0;
 	}
    	my_task_len_y = len_x;
 	my_task_len_x = len_x / proc_qnt;;
+
     if(rank == proc_qnt - 1) {
         my_task_len_x += len_x % proc_qnt;
     }
 
-//	printf("my rank = %d, my_task_len_x = %d \n", rank,my_task_len_x);
-   
 	lbound = (double*) malloc(sizeof(double) * my_task_len_y);
 	rbound = (double*)malloc(sizeof(double) * my_task_len_y);
 	u_next = (double **) malloc(my_task_len_x * sizeof(double*));
@@ -228,12 +204,12 @@ int main(int argc , char ** argv) {
 	assert(rbound > 0);
 	
     for(int i = 0; i < my_task_len_x; ++i) {
-	v_cur[i] = (double*) malloc(my_task_len_y * sizeof(double));
-	u_next[i] = (double *) malloc(my_task_len_y * sizeof(double));
-	u_last[i] = (double *) malloc(my_task_len_y * sizeof(double));
-	for(int j = 0; j < my_task_len_y; ++j) {
-		u_last[i][j] = U0;
-	}
+    	v_cur[i] = (double*) malloc(my_task_len_y * sizeof(double));
+    	u_next[i] = (double *) malloc(my_task_len_y * sizeof(double));
+    	u_last[i] = (double *) malloc(my_task_len_y * sizeof(double));
+        for(int j = 0; j < my_task_len_y; ++j) {
+	    	u_last[i][j] = U0;
+    	}
     }    
 
     double eps = 1e-12;
@@ -258,7 +234,6 @@ int main(int argc , char ** argv) {
         }
 	printf("\n");	
 */
-//	printf("\n time elapsed : %lf" , end - begin);
 	printf("%lf, ", end - begin); 
 	for(int i = 0; i < len_x; ++i)
        		 free(result[i]);
